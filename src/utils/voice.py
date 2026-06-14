@@ -7,10 +7,25 @@ Handles speech-to-text (Whisper), text-to-speech (gTTS), and language detection.
 import os
 import logging
 from pathlib import Path
-from gtts import gTTS
-import whisper
 
 logger = logging.getLogger(__name__)
+
+# Conditional import — whisper requires PyTorch (~2GB) which may not be
+# available in lightweight cloud deployments. Fallback gracefully.
+try:
+    from gtts import gTTS
+    _gtts_available = True
+except ImportError:
+    _gtts_available = False
+    logger.warning("⚠️ gTTS not available — TTS will be disabled")
+
+try:
+    import whisper
+    _whisper_available = True
+except ImportError:
+    whisper = None  # type: ignore
+    _whisper_available = False
+    logger.warning("⚠️ openai-whisper not available — voice transcription will be disabled")
 
 # Load whisper model lazily to avoid long startup times if not used immediately
 _whisper_model = None
@@ -18,6 +33,8 @@ _whisper_model = None
 def get_whisper_model():
     """Load Whisper model singleton."""
     global _whisper_model
+    if not _whisper_available:
+        raise RuntimeError("Whisper is not installed. Install openai-whisper to enable voice features.")
     if _whisper_model is None:
         logger.info("🎙️ Loading Whisper base model...")
         _whisper_model = whisper.load_model("base")
@@ -67,6 +84,9 @@ def text_to_speech(text: str, language: str = "en") -> str:
     Returns the path to the saved audio file.
     """
     logger.info(f"🔊 Generating TTS audio in {language}")
+    if not _gtts_available:
+        logger.warning("⚠️ gTTS not available — skipping TTS")
+        return ""
     try:
         # Create output directory
         out_dir = Path("uploads/audio_responses")
