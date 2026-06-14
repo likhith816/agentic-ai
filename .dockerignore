@@ -1,0 +1,37 @@
+# Node
+frontend/node_modules/
+frontend/dist/
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+.venv/
+venv/
+
+# Models (large binary files — should be downloaded at runtime or via volume)
+src/models/*.pkl
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.claude/
+.agents/
+*.md.bak
+
+# Env files with secrets
+.env
+.env.local
+
+# Temp uploads (mounted as volume in production)
+uploads/*
+reports/*
+
+# FAISS index (rebuilt at startup if missing)
+src/knowledge_base/faiss_index/
