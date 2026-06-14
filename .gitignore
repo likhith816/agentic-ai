@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environment
+venv/
+env/
+.venv/
+ENV/
+
+# Environment variables — NEVER commit API keys
+.env
+*.env
+
+# Uploads (user data — not for repo)
+uploads/
+reports/
+
+# ML model binaries (large files — generate with train_models.py)
+src/models/*.pkl
+
+# FAISS index (regenerate with index_docs.py)
+src/knowledge_base/faiss_index/
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# SQLite database (local session data)
+*.db
+*.sqlite
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temp
+*.tmp
+*.bak
