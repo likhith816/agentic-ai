@@ -1,23 +1,25 @@
-# SteelMind AI Wizard — Dependencies
-# Tata Steel AI Hackathon 2026
+# SteelMind AI Wizard — Production Requirements (Railway/Cloud)
+# Optimized for fast Docker builds — heavy ML libs loaded lazily
+
+# ── Backend API (REQUIRED) ──
+fastapi>=0.110.0
+uvicorn[standard]>=0.25.0
+python-multipart>=0.0.6
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+
+# ── LLM APIs (REQUIRED) ──
+groq>=0.9.0
+google-generativeai>=0.7.0
 
 # ── Agent Framework ──
 langgraph>=0.2.0
 langchain>=0.2.0
 langchain-community>=0.2.0
-
-# ── LLM APIs ──
-groq>=0.9.0
-google-generativeai>=0.7.0
-
-# ── RAG / Vector DB ──
-faiss-cpu>=1.7.0
-# sentence-transformers>=2.2.0  # NOTE: Requires PyTorch (~2GB) — install locally for embeddings
-#                                # Using langchain's default embeddings on cloud
+langchain-text-splitters>=0.2.0
 
 # ── Document Processing ──
 pypdf>=4.0.0
-langchain-text-splitters>=0.2.0
 
 # ── ML / Data Science ──
 scikit-learn>=1.3.0
@@ -26,26 +28,17 @@ pandas>=2.0.0
 numpy>=1.24.0
 joblib>=1.3.0
 
-# ── Backend API ──
-fastapi>=0.110.0
-uvicorn[standard]>=0.25.0
-python-multipart>=0.0.6
-
-# ── Voice ──
-# openai-whisper>=20231117  # NOTE: Requires PyTorch (~2GB) — install locally for voice features
-#                           # Cloud deployments skip this; voice endpoint returns graceful error if missing
-gTTS>=2.3.0
-soundfile>=0.12.0
+# ── RAG / Vector DB ──
+faiss-cpu>=1.7.0
 
 # ── Report Generation ──
 fpdf2>=2.7.0
 
-# ── Frontend Support ──
-python-dotenv>=1.0.0
+# ── Voice (lightweight only) ──
+gTTS>=2.3.0
+soundfile>=0.12.0
 
-# ── Database ──
-# sqlite3 is built-in
-convex>=0.6.0
-
-# ── Testing ──
-pytest>=7.0.0
+# ── EXCLUDED (too heavy for cloud, install locally) ──
+# openai-whisper   — requires PyTorch ~2GB
+# sentence-transformers — requires PyTorch ~2GB
+# convex           — optional Convex DB sync

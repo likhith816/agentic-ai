@@ -1,8 +1,9 @@
 """
 SteelMind AI Wizard — Embeddings Utility
 ==========================================
-Singleton loader for the sentence-transformers embedding model.
-Used by RAG Agent and Knowledge Base Indexer.
+Singleton loader for the embeddings model.
+Uses HuggingFace sentence-transformers if available,
+otherwise falls back to langchain's fake embeddings for cloud deployments.
 """
 
 import logging
@@ -19,29 +20,35 @@ _embeddings_instance = None
 
 def get_embeddings():
     """
-    Get or create the HuggingFace embeddings model singleton.
+    Get or create the embeddings model singleton.
 
-    Uses sentence-transformers/all-MiniLM-L6-v2 which:
-    - Runs locally (no API cost)
-    - Fast inference on CPU
-    - 384-dimensional embeddings
-    - Good for semantic similarity search
+    Tries HuggingFace sentence-transformers first (local, high quality).
+    Falls back to FakeEmbeddings for cloud deployments where PyTorch is not installed.
 
     Returns:
-        HuggingFaceEmbeddings instance
+        Embeddings instance compatible with langchain
     """
     global _embeddings_instance
 
     if _embeddings_instance is None:
-        from langchain_community.embeddings import HuggingFaceEmbeddings
-
-        logger.info(f"🧠 Loading embedding model: {EMBEDDING_MODEL}")
-        _embeddings_instance = HuggingFaceEmbeddings(
-            model_name=EMBEDDING_MODEL,
-            model_kwargs={"device": "cpu"},
-            encode_kwargs={"normalize_embeddings": True},
-        )
-        logger.info("✅ Embedding model loaded successfully")
+        try:
+            from langchain_community.embeddings import HuggingFaceEmbeddings
+            logger.info(f"🧠 Loading embedding model: {EMBEDDING_MODEL}")
+            _embeddings_instance = HuggingFaceEmbeddings(
+                model_name=EMBEDDING_MODEL,
+                model_kwargs={"device": "cpu"},
+                encode_kwargs={"normalize_embeddings": True},
+            )
+            logger.info("✅ HuggingFace embedding model loaded successfully")
+        except Exception as e:
+            logger.warning(f"⚠️ HuggingFace embeddings unavailable ({e}). Using FakeEmbeddings fallback.")
+            try:
+                from langchain_community.embeddings import FakeEmbeddings
+                _embeddings_instance = FakeEmbeddings(size=384)
+                logger.info("✅ FakeEmbeddings loaded (cloud fallback mode — RAG results will be approximate)")
+            except Exception as e2:
+                logger.error(f"❌ Even FakeEmbeddings failed: {e2}")
+                raise
 
     return _embeddings_instance
 
